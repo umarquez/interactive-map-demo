@@ -1,0 +1,26 @@
+# VCS + editor cruft
+.git
+.gitignore
+.gitattributes
+.github
+.idea
+.vscode
+.DS_Store
+
+# Project tooling that doesn't belong in the image
+.claude
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+
+# Docs aren't needed at runtime
+README.md
+CLAUDE.md
+
+# Local build/test artifacts
+tmp
+dist
+*.log
+*.test
+coverage.out

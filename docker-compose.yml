@@ -1,0 +1,19 @@
+services:
+  dynamic-map:
+    build: .
+    image: dynamic-map:latest
+    container_name: dynamic-map
+    ports:
+      - "8080:8080"
+    volumes:
+      # Edit locations.yaml on the host and restart the container to pick it
+      # up — the server caches groups at startup, so a `docker compose restart`
+      # is needed after edits.
+      - ./locations.yaml:/app/locations.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/api/v1/groups"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

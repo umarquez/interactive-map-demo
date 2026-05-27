@@ -1,0 +1,36 @@
+# Compiled binaries
+/dynamic-map
+/interactive-map-demo
+*.exe
+*.test
+*.out
+
+# Coverage
+coverage.out
+coverage.html
+
+# Local data overrides — keep the in-repo locations.yaml as the example dataset
+# and let people drop a private locations.local.yaml next to it without
+# leaking it into git.
+locations.local.yaml
+locations.*.yaml
+!locations.yaml
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs and runtime tmp
+*.log
+tmp/
+dist/
+
+# Claude Code working files (kept local)
+.claude/

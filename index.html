@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0f172a" />
+    <title>Dynamic Map — Events around the world</title>
+    <script>
+      // Resolve theme before CSS loads to avoid a flash of the wrong palette.
+      (function () {
+        try {
+          var stored = localStorage.getItem("dm-theme");
+          var theme = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+          document.documentElement.dataset.theme = theme;
+        } catch (_) {
+          document.documentElement.dataset.theme = "dark";
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="/assets/css/reset.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+    <link rel="stylesheet" href="/assets/css/events-list.css" />
+    <link rel="stylesheet" href="/assets/css/map.css" />
+    <link rel="stylesheet" href="/assets/css/tooltip.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#events">Skip to events</a>
+    <div class="app">
+      <header class="app__header">
+        <div class="app__brand">
+          <span class="app__brand-dot" aria-hidden="true"></span>
+          <span class="app__brand-text">Dynamic Map</span>
+        </div>
+        <p class="app__tagline">Hover an event to fly to its country.</p>
+        <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme">
+          <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" fill="currentColor" />
+          </svg>
+          <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="currentColor" />
+            <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="12" y1="2" x2="12" y2="5" />
+              <line x1="12" y1="19" x2="12" y2="22" />
+              <line x1="2" y1="12" x2="5" y2="12" />
+              <line x1="19" y1="12" x2="22" y2="12" />
+              <line x1="4.2" y1="4.2" x2="6.3" y2="6.3" />
+              <line x1="17.7" y1="17.7" x2="19.8" y2="19.8" />
+              <line x1="4.2" y1="19.8" x2="6.3" y2="17.7" />
+              <line x1="17.7" y1="6.3" x2="19.8" y2="4.2" />
+            </g>
+          </svg>
+        </button>
+      </header>
+
+      <main class="app__main">
+        <section class="map" aria-label="World map">
+          <div id="map" class="map__canvas" data-state="idle"></div>
+          <div id="tooltip" class="tooltip" role="status" aria-live="polite" hidden>
+            <div class="tooltip__title"></div>
+            <div class="tooltip__description"></div>
+          </div>
+          <div class="map__hint" aria-hidden="true">
+            <span class="map__hint-icon">↗</span>
+            <span>Tap or hover an event on the list</span>
+          </div>
+        </section>
+
+        <aside id="events" class="events" aria-label="Events">
+          <div class="events__scroll" id="events-scroll"></div>
+        </aside>
+      </main>
+    </div>
+
+    <template id="tpl-group">
+      <section class="group">
+        <header class="group__header">
+          <span class="group__swatch" aria-hidden="true"></span>
+          <h2 class="group__name"></h2>
+          <span class="group__count" aria-hidden="true"></span>
+        </header>
+        <ul class="group__events"></ul>
+      </section>
+    </template>
+
+    <template id="tpl-event">
+      <li class="event" tabindex="0">
+        <span class="event__bullet" aria-hidden="true"></span>
+        <div class="event__body">
+          <div class="event__title"></div>
+          <div class="event__description"></div>
+          <div class="event__meta">
+            <span class="event__country"></span>
+          </div>
+        </div>
+      </li>
+    </template>
+
+    <script type="module" src="/assets/js/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,154 @@
+/* Theme tokens. The actual `data-theme` value is set in <head> by an inline
+   script (localStorage > prefers-color-scheme) so there's never an unset
+   state and no FOUC. */
+:root,
+:root[data-theme="dark"] {
+  --bg: #0b1220;
+  --bg-2: #0f172a;
+  --surface: #111c33;
+  --surface-2: #16223d;
+  --border: #1f2d4d;
+  --fg: #e5ecf7;
+  --fg-muted: #93a3c0;
+  --accent: #4f8cff;
+  --ocean: #0c182c;
+  --land: #1b2a47;
+  --land-hover: #243a63;
+  --country-outline: rgba(220, 232, 255, 0.18);
+  --pin-stroke: rgba(255, 255, 255, 0.85);
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --t-fast: 160ms;
+  --t-med: 280ms;
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:root[data-theme="light"] {
+  --bg: #f5f7fb;
+  --bg-2: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f0f3fa;
+  --border: #e3e8f1;
+  --fg: #0e1726;
+  --fg-muted: #5a6478;
+  --ocean: #e7eef9;
+  --land: #cdd6e6;
+  --land-hover: #b6c2d9;
+  --country-outline: rgba(20, 30, 60, 0.22);
+  --pin-stroke: rgba(255, 255, 255, 0.95);
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* Smooth theme transitions, applied only after the first paint (set by JS) to
+   avoid an initial cross-fade on load. */
+.theme-transitions,
+.theme-transitions * {
+  transition:
+    background-color var(--t-med) var(--ease),
+    color var(--t-med) var(--ease),
+    border-color var(--t-med) var(--ease),
+    fill var(--t-med) var(--ease),
+    stroke var(--t-med) var(--ease);
+}
+
+.app {
+  height: 100dvh;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.app__header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 14px 20px;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.app__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.app__brand-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 4px rgba(79, 140, 255, 0.18);
+}
+
+.app__brand-text {
+  font-size: 16px;
+}
+
+.app__tagline {
+  color: var(--fg-muted);
+  font-size: 13px;
+  flex: 1;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--fg-muted);
+  cursor: pointer;
+  transition: color var(--t-fast) var(--ease), border-color var(--t-fast) var(--ease),
+    background var(--t-fast) var(--ease), transform var(--t-fast) var(--ease);
+}
+.theme-toggle:hover {
+  color: var(--fg);
+  border-color: var(--accent);
+}
+.theme-toggle:active {
+  transform: scale(0.94);
+}
+.theme-toggle__icon {
+  width: 18px;
+  height: 18px;
+}
+/* Show the icon matching the current theme — moon when dark, sun when light. */
+:root[data-theme="dark"] .theme-toggle__icon--sun,
+:root[data-theme="light"] .theme-toggle__icon--moon {
+  display: none;
+}
+
+.app__main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  min-height: 0;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .app__main {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(280px, 45dvh) minmax(0, 1fr);
+    gap: 12px;
+    padding: 12px;
+  }
+  .app__tagline {
+    display: none;
+  }
+}

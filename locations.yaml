@@ -1,0 +1,69 @@
+# Groups of events shown next to the map.
+# Schema:
+#   groups:
+#     - id: unique-slug             # required
+#       name: Display name          # required
+#       color: "#rrggbb"            # required — used for the events list and the map pins
+#       events:
+#         - title: ...              # required
+#           description: ...        # required
+#           country: XX             # required — ISO 3166-1 alpha-2, matches a <path id> in world.svg
+#           lat: 36.1699            # optional — overrides country centroid for fine pin placement
+#           lng: -115.1398          # optional — pairs with lat
+
+groups:
+  - id: conferences
+    name: Conferences
+    color: "#4f8cff"
+    events:
+      - title: KubeCon Europe
+        description: Cloud-native community conference held annually in a European host city.
+        country: DE
+      - title: AWS re:Invent
+        description: AWS' flagship learning conference — pinned to Las Vegas via lat/lng.
+        country: US
+        lat: 36.1699
+        lng: -115.1398
+      - title: GopherCon Singapore
+        description: The Go community gathering for the APAC region.
+        country: SG
+
+  - id: incidents
+    name: Incidents
+    color: "#ff6b6b"
+    events:
+      - title: Submarine cable cut
+        description: Red Sea fiber cut briefly disrupted EU↔Asia traffic.
+        country: EG
+      - title: Regional power outage
+        description: Grid event affected several availability zones for a few hours.
+        country: BR
+
+  - id: travel
+    name: Travel
+    color: "#33c47a"
+    events:
+      - title: Team offsite
+        description: Annual engineering offsite in Tokyo — pinned to Shibuya.
+        country: JP
+        lat: 35.6595
+        lng: 139.7005
+      - title: Customer visit
+        description: On-site workshop with a strategic customer.
+        country: CA
+      - title: Field research
+        description: Two weeks of remote site evaluations.
+        country: KE
+
+  - id: launches
+    name: Launches
+    color: "#f4b400"
+    events:
+      - title: Product launch — APAC
+        description: Regional GA in Australia and New Zealand.
+        country: AU
+      - title: Product launch — LATAM
+        description: Spanish-language rollout with São Paulo as the launch HQ.
+        country: BR
+        lat: -23.5505
+        lng: -46.6333

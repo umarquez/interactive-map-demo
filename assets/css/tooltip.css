@@ -1,0 +1,60 @@
+.tooltip {
+  position: absolute;
+  z-index: 4;
+  padding: 10px 12px;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--t-fast) var(--ease);
+  /* Width is constrained at runtime: max-width = 75% of map, min-width =
+     min(250px, 50% of map). The arrow's horizontal position is set by JS too,
+     so it can still point at the pin after the card is clamped to fit. */
+  --arrow-x: 50%;
+  box-sizing: border-box;
+}
+
+.tooltip[data-visible="true"] {
+  opacity: 1;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  left: var(--arrow-x);
+  width: 12px;
+  height: 12px;
+  background: var(--surface);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+/* Default placement (above the pin): arrow drops off the bottom edge */
+.tooltip[data-placement="above"]::after,
+.tooltip:not([data-placement])::after {
+  bottom: -7px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Flipped placement (below the pin): arrow sits on the top edge */
+.tooltip[data-placement="below"]::after {
+  top: -7px;
+  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border);
+}
+
+.tooltip__title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: var(--fg);
+}
+
+.tooltip__description {
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.4;
+}

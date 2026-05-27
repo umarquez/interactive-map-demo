@@ -1,0 +1,131 @@
+.map {
+  position: relative;
+  background: var(--ocean);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  min-height: 0;
+}
+
+.map__canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.map__canvas svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background:
+    radial-gradient(ellipse at center, color-mix(in oklab, var(--ocean) 80%, #000) 0%, var(--ocean) 70%);
+}
+
+/* All country paths.
+   `vector-effect: non-scaling-stroke` keeps the outline visually thin no matter
+   how far the user zooms in. Without it, a 0.75px stroke at 7× zoom would
+   render as ~5px. */
+.map__canvas svg path[id] {
+  fill: var(--land);
+  stroke: var(--country-outline);
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--t-fast) var(--ease), filter var(--t-fast) var(--ease);
+}
+
+.map__canvas svg path[id]:hover {
+  fill: var(--land-hover);
+}
+
+/* Highlighted country (color comes from inline style set by JS) */
+.map__canvas svg path.is-highlighted {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
+}
+
+/* Overview pins: small dots, one per event, always visible in the default view.
+   `vector-effect: non-scaling-stroke` keeps the white ring crisp at any zoom. */
+.overview-pins {
+  pointer-events: none;
+  transition: opacity var(--t-med) var(--ease);
+}
+.overview-pins.is-hidden {
+  opacity: 0;
+}
+.overview-pin {
+  stroke: var(--pin-stroke);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* Active pin (shown when an event is focused). Outer wrapper translates;
+   inner animates. */
+.map-pin-wrapper {
+  pointer-events: none;
+}
+.map-pin {
+  transform-origin: 0 0;
+  transform-box: fill-box;
+  animation: pin-pop var(--t-med) var(--ease) both;
+}
+.map-pin__ring {
+  fill: none;
+  stroke: var(--pin-stroke);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  opacity: 1;
+}
+.map-pin__dot {
+  fill: currentColor;
+  stroke: var(--pin-stroke);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+.map-pin__halo {
+  fill: currentColor;
+  opacity: 0.25;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: pin-halo 1.6s ease-out infinite;
+}
+
+@keyframes pin-pop {
+  from { transform: scale(0.3); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+@keyframes pin-halo {
+  0%   { transform: scale(0.6); opacity: 0.5; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map__canvas svg path[id] { transition: none; }
+  .map-pin, .map-pin__halo { animation: none; }
+}
+
+.map__hint {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--fg-muted);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  opacity: 0.9;
+  transition: opacity var(--t-fast) var(--ease);
+}
+.map__canvas[data-state="active"] ~ .map__hint {
+  opacity: 0;
+}
+.map__hint-icon {
+  display: inline-block;
+  transform: rotate(-30deg);
+}
