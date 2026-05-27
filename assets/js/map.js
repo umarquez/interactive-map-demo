@@ -109,6 +109,11 @@ export class MapController {
     const targetVB = expandedViewBox(bbox, this.baseViewBox, 1.6);
     this.#animateViewBox(targetVB);
 
+    // City-state countries (SG ≈ 1 SVG unit wide, MC, LI, etc.) become
+    // sub-pixel-invisible once their fill is applied. Add a visible halo
+    // marker so "highlighted" actually reads as such.
+    this.#renderSmallCountryMarker(bbox, color);
+
     const pin = computePinAnchor({ bbox, lat, lng });
     this.#renderPin(pin, color);
     this.#setOverviewPinsHidden(true);
@@ -120,10 +125,33 @@ export class MapController {
   reset() {
     if (!this.svg) return;
     this.#clearHighlight();
+    this.#removeSmallCountryMarker();
     this.#removePin();
     this.#setOverviewPinsHidden(false);
     this.#animateViewBox(this.baseViewBox);
     this.container.dataset.state = "idle";
+  }
+
+  #renderSmallCountryMarker(bbox, color) {
+    this.#removeSmallCountryMarker();
+    // Threshold picked from measured bboxes: SG=0.97, MC=0.39, VA=0.06,
+    // LI/AD ≈ 0.5–0.7. Anything ≥ ~5 SVG units (e.g. EG=34) renders fine.
+    if (Math.max(bbox.width, bbox.height) >= 5) return;
+    const c = document.createElementNS(SVG_NS, "circle");
+    c.setAttribute("class", "small-country-marker");
+    c.setAttribute("cx", bbox.x + bbox.width / 2);
+    c.setAttribute("cy", bbox.y + bbox.height / 2);
+    c.setAttribute("r", "8");
+    c.style.fill = color;
+    // Insert before the overview layer so the active pin (appended last)
+    // still renders on top of this marker.
+    this.svg.appendChild(c);
+    this.smallMarkerEl = c;
+  }
+
+  #removeSmallCountryMarker() {
+    if (this.smallMarkerEl?.parentNode) this.smallMarkerEl.parentNode.removeChild(this.smallMarkerEl);
+    this.smallMarkerEl = null;
   }
 
   #setOverviewPinsHidden(hidden) {

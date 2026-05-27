@@ -27,6 +27,9 @@ groups:
       - title: GopherCon Singapore
         description: The Go community gathering for the APAC region.
         country: SG
+      - title: C0D3 Tech Meetup
+        description: Demo community gathering hosted by the C0D3 collective.
+        country: MX
 
   - id: incidents
     name: Incidents

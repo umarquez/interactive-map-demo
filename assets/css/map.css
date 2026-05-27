@@ -43,6 +43,29 @@
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.25));
 }
 
+/* Fallback marker for city-state countries that are sub-pixel at world scale
+   (Singapore, Monaco, Vatican, Liechtenstein, Andorra). The path is still
+   highlighted in the DOM; this circle just makes the focus visible. */
+.small-country-marker {
+  opacity: 0.6;
+  stroke: var(--pin-stroke);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.25));
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: small-marker-in var(--t-med) var(--ease) both;
+}
+
+@keyframes small-marker-in {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 0.6; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .small-country-marker { animation: none; }
+}
+
 /* Overview pins: small dots, one per event, always visible in the default view.
    `vector-effect: non-scaling-stroke` keeps the white ring crisp at any zoom. */
 .overview-pins {
