@@ -66,6 +66,11 @@ export class MapController {
   /**
    * Render a small static pin for every event so the default world view shows
    * all locations at a glance. Items: [{ anchor: {x,y}, color }]
+   *
+   * Each pin is a <g transform="translate(x y) scale(s)"> wrapper around a
+   * unit-positioned circle. The scale s is the inverse of the current viewBox
+   * zoom (updated in #updateAllPinScales) so the pin keeps a constant on-screen
+   * size — same idea as vector-effect:non-scaling-stroke, but for the geometry.
    */
   renderOverviewPins(items) {
     if (!this.svg) return;
@@ -76,16 +81,22 @@ export class MapController {
     g.setAttribute("class", "overview-pins");
     for (const item of items) {
       if (!item.anchor) continue;
+      const wrapper = document.createElementNS(SVG_NS, "g");
+      wrapper.setAttribute("class", "overview-pin-wrapper");
+      wrapper.dataset.x = String(item.anchor.x);
+      wrapper.dataset.y = String(item.anchor.y);
       const c = document.createElementNS(SVG_NS, "circle");
       c.setAttribute("class", "overview-pin");
-      c.setAttribute("cx", item.anchor.x);
-      c.setAttribute("cy", item.anchor.y);
+      c.setAttribute("cx", "0");
+      c.setAttribute("cy", "0");
       c.setAttribute("r", "4");
       c.style.fill = item.color;
-      g.appendChild(c);
+      wrapper.appendChild(c);
+      g.appendChild(wrapper);
     }
     this.svg.appendChild(g);
     this.overviewLayer = g;
+    this.#updateAllPinScales();
   }
 
   /**
@@ -137,16 +148,25 @@ export class MapController {
     // Threshold picked from measured bboxes: SG=0.97, MC=0.39, VA=0.06,
     // LI/AD ≈ 0.5–0.7. Anything ≥ ~5 SVG units (e.g. EG=34) renders fine.
     if (Math.max(bbox.width, bbox.height) >= 5) return;
+    const cx = bbox.x + bbox.width / 2;
+    const cy = bbox.y + bbox.height / 2;
+    // Wrapped so #updateAllPinScales can apply the inverse-zoom scale and
+    // keep the halo a constant on-screen size, otherwise it engulfs the
+    // country once you're zoomed in.
+    const wrapper = document.createElementNS(SVG_NS, "g");
+    wrapper.setAttribute("class", "small-marker-wrapper");
+    wrapper.dataset.x = String(cx);
+    wrapper.dataset.y = String(cy);
     const c = document.createElementNS(SVG_NS, "circle");
     c.setAttribute("class", "small-country-marker");
-    c.setAttribute("cx", bbox.x + bbox.width / 2);
-    c.setAttribute("cy", bbox.y + bbox.height / 2);
+    c.setAttribute("cx", "0");
+    c.setAttribute("cy", "0");
     c.setAttribute("r", "8");
     c.style.fill = color;
-    // Insert before the overview layer so the active pin (appended last)
-    // still renders on top of this marker.
-    this.svg.appendChild(c);
-    this.smallMarkerEl = c;
+    wrapper.appendChild(c);
+    this.svg.appendChild(wrapper);
+    this.smallMarkerEl = wrapper;
+    this.#updateAllPinScales();
   }
 
   #removeSmallCountryMarker() {
@@ -187,12 +207,14 @@ export class MapController {
     // pinAnchor is owned here so the remove/render cycle stays consistent —
     // #removePin clears it, #renderPin sets the new one.
     this.pinAnchor = { x, y };
-    // Two-layer pin: outer <g> holds the SVG translate; inner <g> takes the
-    // CSS scale/opacity animation. Mixing translate + scale on the same
-    // element causes the CSS transform to clobber the SVG transform attribute.
+    // Two-layer pin: outer <g> holds the SVG translate + inverse zoom scale;
+    // inner <g> takes the CSS scale/opacity entrance animation. Mixing
+    // translate + scale on the same element causes the CSS transform to
+    // clobber the SVG transform attribute.
     const wrapper = document.createElementNS(SVG_NS, "g");
     wrapper.setAttribute("class", "map-pin-wrapper");
-    wrapper.setAttribute("transform", `translate(${x} ${y})`);
+    wrapper.dataset.x = String(x);
+    wrapper.dataset.y = String(y);
     wrapper.style.color = color;
 
     const inner = document.createElementNS(SVG_NS, "g");
@@ -216,6 +238,7 @@ export class MapController {
     wrapper.appendChild(inner);
     this.svg.appendChild(wrapper);
     this.pinEl = wrapper;
+    this.#updateAllPinScales();
   }
 
   #removePin() {
@@ -224,11 +247,33 @@ export class MapController {
     this.pinAnchor = null;
   }
 
+  /**
+   * Apply an inverse-zoom scale to every pin wrapper so pins stay a constant
+   * size in screen pixels regardless of how far the user zoomed in. Runs on
+   * every viewBox animation tick and after each pin (re)render.
+   */
+  #updateAllPinScales() {
+    if (!this.svg || !this.baseViewBox || !this.currentViewBox) return;
+    const inverseScale = this.currentViewBox[2] / this.baseViewBox[2];
+    const apply = (wrapper) => {
+      if (!wrapper) return;
+      const x = wrapper.dataset.x;
+      const y = wrapper.dataset.y;
+      wrapper.setAttribute("transform", `translate(${x} ${y}) scale(${inverseScale})`);
+    };
+    if (this.overviewLayer) {
+      for (const w of this.overviewLayer.children) apply(w);
+    }
+    apply(this.pinEl);
+    apply(this.smallMarkerEl);
+  }
+
   #animateViewBox(target) {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced) {
       this.svg.setAttribute("viewBox", target.join(" "));
       this.currentViewBox = [...target];
+      this.#updateAllPinScales();
       return;
     }
     if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
@@ -246,6 +291,7 @@ export class MapController {
       ];
       this.svg.setAttribute("viewBox", vb.join(" "));
       this.currentViewBox = vb;
+      this.#updateAllPinScales();
       if (t < 1) {
         this.animationFrame = requestAnimationFrame(tick);
       } else {

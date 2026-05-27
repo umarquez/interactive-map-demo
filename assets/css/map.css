@@ -88,7 +88,9 @@
   pointer-events: none;
 }
 .map-pin {
-  transform-origin: 0 0;
+  /* All inner shapes draw at (0,0); the wrapper handles translate + the
+     inverse-zoom scale. Pop animation scales around the pin center. */
+  transform-origin: center;
   transform-box: fill-box;
   animation: pin-pop var(--t-med) var(--ease) both;
 }
