@@ -1,4 +1,4 @@
-module github.com/0xC0D3/interactive-map-demo
+module github.com/umarquez/interactive-map-demo
 
 go 1.25.5
 

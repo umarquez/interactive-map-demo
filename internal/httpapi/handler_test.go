@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/0xC0D3/interactive-map-demo/internal/groups"
+	"github.com/umarquez/interactive-map-demo/internal/groups"
 )
 
 type fakeReader struct {

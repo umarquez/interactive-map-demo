@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/0xC0D3/interactive-map-demo/internal/groups"
+	"github.com/umarquez/interactive-map-demo/internal/groups"
 )
 
 // GroupsReader is the narrow interface the handler depends on

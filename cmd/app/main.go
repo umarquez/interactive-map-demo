@@ -12,8 +12,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/0xC0D3/interactive-map-demo/internal/groups"
-	"github.com/0xC0D3/interactive-map-demo/internal/httpapi"
+	"github.com/umarquez/interactive-map-demo/internal/groups"
+	"github.com/umarquez/interactive-map-demo/internal/httpapi"
 )
 
 func main() {

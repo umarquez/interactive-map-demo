@@ -13,7 +13,7 @@ go vet ./...
 
 The server reads `locations.yaml` once at startup (`-data` flag overrides the path). Hot reload is intentionally not implemented — restart to pick up data changes.
 
-Go module path is `github.com/0xC0D3/interactive-map-demo`; internal imports use that prefix.
+Go module path is `github.com/umarquez/interactive-map-demo`; internal imports use that prefix.
 
 ## Architecture
 
