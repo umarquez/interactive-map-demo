@@ -18,9 +18,12 @@ func NewServer(cfg Config, groupsHandler http.Handler) *http.Server {
 
 	mux.Handle("GET /api/v1/groups", groupsHandler)
 
-	// Static assets — served from /assets/... (with directory listings disabled).
+	// Static assets — served from /assets/... with directory listings disabled
+	// and a short Cache-Control so downstream CDNs revalidate often. Without
+	// this Cloudflare defaults to ~4h browser TTL, which strands clients on
+	// the old JS for hours after a redeploy.
 	assetsFS := http.FileServer(http.Dir(cfg.AssetsDir))
-	mux.Handle("GET /assets/", noDirListing(http.StripPrefix("/assets/", assetsFS)))
+	mux.Handle("GET /assets/", noDirListing(withAssetCache(http.StripPrefix("/assets/", assetsFS))))
 
 	// SPA shell at /
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
@@ -40,8 +43,17 @@ func NewServer(cfg Config, groupsHandler http.Handler) *http.Server {
 }
 
 func serveIndex(w http.ResponseWriter, r *http.Request, rootDir string) {
-	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Cache-Control", "no-cache, must-revalidate")
 	http.ServeFile(w, r, filepath.Join(rootDir, "index.html"))
+}
+
+func withAssetCache(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// 60s public max-age + must-revalidate: CDN can cache briefly to
+		// absorb load, but a new deploy propagates within a minute.
+		w.Header().Set("Cache-Control", "public, max-age=60, must-revalidate")
+		h.ServeHTTP(w, r)
+	})
 }
 
 // noDirListing prevents http.FileServer from rendering directory indexes.
